@@ -23,10 +23,7 @@ export default function App() {
             </li>
             <li>
               <Link to="/signup">Signup</Link>
-            </li>
-            <li>
-              <Link to="/secret">Secret</Link>
-            </li>
+            </li>=
           </ul>
         </nav>
 
@@ -36,7 +33,6 @@ export default function App() {
           <Route path="/login">
             <Login />
           </Route>
-          <PrivateRoute path="/secret" component={Secret} />
           <Route path="/">
             <Home />
           </Route>
@@ -123,35 +119,4 @@ function Login() {
     : <button onClick={() => logout()}>Logout</button>}
   </div>
   )
-}
-
-function Secret() {
-  const [message, setMessage] = useState('')
-
-  useEffect(() => {
-    authFetch("/api/protected").then(response => {
-      if (response.status === 401){
-        setMessage("Sorry you aren't authorized!")
-        return null
-      }
-      return response.json()
-    }).then(response => {
-      if (response && response.message){
-        setMessage(response.message)
-      }
-    })
-  }, [])
-  return (
-    <h2>Secret: {message}</h2>
-  )
-}
-
-const PrivateRoute = ({ component: Component, ...rest }) => {
-  const [logged] = useAuth();
-
-  return <Route {...rest} render={(props) => (
-    logged
-      ? <Component {...props} />
-      : <Redirect to='/login' />
-  )} />
 }
