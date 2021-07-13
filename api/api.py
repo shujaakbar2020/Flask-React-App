@@ -44,8 +44,8 @@ class User(db.Model):
 app = flask.Flask(__name__)
 app.debug = True
 app.config['SECRET_KEY'] = 'top secret'
-app.config['JWT_ACCESS_LIFESPAN'] = {'hours': 24}
-app.config['JWT_REFRESH_LIFESPAN'] = {'days': 30}
+app.config['JWT_ACCESS_LIFESPAN'] = {'hours': 10}
+app.config['JWT_REFRESH_LIFESPAN'] = {'days': 1}
 
 # Initialize the flask-praetorian instance for the app
 guard.init_app(app, User)
@@ -91,35 +91,6 @@ def login():
     user = guard.authenticate(username, password)
     ret = {'access_token': guard.encode_jwt_token(user)}
     return ret, 200
-
-  
-@app.route('/api/refresh', methods=['POST'])
-def refresh():
-    """
-    Refreshes an existing JWT by creating a new one that is a copy of the old
-    except that it has a refrehsed access expiration.
-    .. example::
-       $ curl http://localhost:5000/api/refresh -X GET \
-         -H "Authorization: Bearer <your_token>"
-    """
-    print("refresh request")
-    old_token = flask.request.get_data()
-    new_token = guard.refresh_jwt_token(old_token)
-    ret = {'access_token': new_token}
-    return ret, 200
-  
-  
-@app.route('/api/protected')
-@flask_praetorian.auth_required
-def protected():
-    """
-    A protected endpoint. The auth_required decorator will require a header
-    containing a valid JWT
-    .. example::
-       $ curl http://localhost:5000/api/protected -X GET \
-         -H "Authorization: Bearer <your_token>"
-    """
-    return {'message': f'protected endpoint (allowed user {flask_praetorian.current_user().username})'}
 
 
 # Run the example
